@@ -1,5 +1,5 @@
-import { user, dbUser, userExists } from "./user.type";
-import sqlite3 from "sqlite3";
+import { user, dbUser, userExists } from './user.type';
+import sqlite3 from 'sqlite3';
 
 const sqlite = sqlite3.verbose();
 
@@ -15,13 +15,13 @@ export class Users {
       const allUsers = await this.getUsers();
       const idNewUser = allUsers.length;
       this.db.run(
-        "INSERT INTO users VALUES (?, ?, ?)",
+        'INSERT INTO users VALUES (?, ?, ?)',
         [
           idNewUser + 1,
           user.uid,
-          typeof user.filters === "string"
+          typeof user.filters === 'string'
             ? user.filters
-            : user.filters.join(","),
+            : user.filters.join(',')
         ],
         () => {
           resolve();
@@ -32,11 +32,11 @@ export class Users {
 
   async getUsers(): Promise<user[]> {
     return new Promise((resolve, reject) => {
-      this.db.all("SELECT * FROM users", (err: Error | null, res: dbUser[]) => {
+      this.db.all('SELECT * FROM users', (err: Error | null, res: dbUser[]) => {
         if (err) reject(err);
         const usrs: user[] = res.map((user) => {
-          if (typeof user.filters === "string") {
-            user.filters = user.filters.split(",");
+          if (typeof user.filters === 'string') {
+            user.filters = user.filters.split(',');
           }
           return user;
         });
@@ -46,7 +46,7 @@ export class Users {
   }
 
   async exists(id: number): Promise<any> {
-    const query: string = "SELECT * FROM users WHERE id=?";
+    const query: string = 'SELECT * FROM users WHERE id=?';
     return new Promise((resolve, reject) => {
       this.db.all(query, [id], (err: Error | null, res: any) => {
         if (err) reject(err);
@@ -59,13 +59,13 @@ export class Users {
   async getUser(id: number): Promise<user> {
     return new Promise((resolve, reject) => {
       this.db.all(
-        "SELECT * FROM users WHERE id=?",
+        'SELECT * FROM users WHERE id=?',
         [id],
         (err: Error | null, res: dbUser) => {
           if (err) reject(err);
           const user: user = res;
-          if (typeof res.filters == "string") {
-            user.filters = res.filters.split(",");
+          if (typeof res.filters == 'string') {
+            user.filters = res.filters.split(',');
           }
           resolve(user);
         }
