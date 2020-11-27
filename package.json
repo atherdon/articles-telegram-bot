@@ -8,6 +8,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
+    "format": "prettier --config .prettierrc.json 'src/**/*.ts' --write",
     "jest-init": "ts-jest config:init",
     "start": "nodemon index.js"
   },
