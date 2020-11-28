@@ -3,7 +3,7 @@
  * */
 export default {
   clearMocks: true,
-  coveragePathIgnorePatterns: ["/node_modules/", "/src/", "/dist/", "/db/"],
+  coveragePathIgnorePatterns: ["node_modules", "src", "dist", "db"],
   coverageProvider: "v8",
   moduleFileExtensions: ["ts"],
   notify: true,

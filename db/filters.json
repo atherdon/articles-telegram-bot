@@ -1,7 +1,27 @@
 [
   {
-    "id": 1,
-    "name": "Web",
-    "slug": "web"
+    "name": "Featured Stories",
+    "slug": "featured-stories",
+    "id": 1
+  },
+  {
+    "name": "Crypto Currency",
+    "slug": "cryptocurrency",
+    "id": 2
+  },
+  {
+    "name": "Programming",
+    "slug": "programming",
+    "id": 3
+  },
+  {
+    "name": "Business",
+    "slug": "business",
+    "id": 4
+  },
+  {
+    "name": "Machine Learning",
+    "slug": "machine-learning",
+    "id": 5
   }
 ]
