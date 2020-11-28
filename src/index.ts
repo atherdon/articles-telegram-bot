@@ -8,7 +8,7 @@ import { Filter } from './filters/filter.type';
 
 const filters = new Filters(path.join(__dirname, '..', 'db', 'filters.json'));
 const users = new Users(path.join(__dirname, '..', 'db', 'users.sqlite3'));
-const bot = new Telegraf('1444702700:AAFS3hUzWh7ZQDcOP7V3ZuRGMUxpGq5dNCs');
+const bot = new Telegraf('14400:AAFS3hUzcORGMUxpGqCs');
 
 // bot.use(Telegraf.log())
 
