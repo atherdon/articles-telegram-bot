@@ -5,6 +5,7 @@ describe("Filter tests", ()=>{
   const filters: Filters = new Filters(path.join(__dirname, '..', 'db', 'filters.json'));
   test('Get All filters', async (done)=>{
     console.log('Getting filters');
+    await filters.start();
     await filters.data()
       .then((filtrs)=>{
         console.log(JSON.stringify(filtrs));

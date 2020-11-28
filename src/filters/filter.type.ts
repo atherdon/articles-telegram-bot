@@ -1,5 +1,5 @@
 export type Filter = {
-  id: number;
+  id?: number;
   slug: string;
   name: string;
 };

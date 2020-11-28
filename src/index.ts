@@ -50,12 +50,34 @@ bot.action('filters', async (ctx) => {
 });
 
 bot.action(/(filter)-([0-9]{1,3})/i, async (ctx) => {
+  // @ts-ignore
   if (typeof ctx.match !== 'undefined' && ctx.match !== null) {
     const fid: number = +ctx.match[2];
+    // @ts-ignore
+    const id = ctx.update.callback_query.from.id;
+    const user = await users.getUser(id);
     filters
       .getFilter(fid)
       .then(async (filter) => {
-        await ctx.reply('Filter name - ' + filter.name);
+        let { filters } = user;
+        if (filters.indexOf(String(fid)) === -1) {
+          if (typeof filters !== 'string') {
+            filters.push(String(fid));
+          } else {
+            filters = filters.split(',');
+            filters.push(String(fid));
+          }
+        } else {
+          if (typeof filters !== 'string') {
+            await filters.splice(filters.indexOf(String(fid)), 1);
+          } else {
+            filters = filters.split(',');
+            await filters.splice(filters.indexOf(String(fid)), 1);
+          }
+        }
+        user.filters = filters;
+        await users.update(user);
+        await ctx.reply('Your filters - ' + JSON.stringify(user.filters));
       })
       .catch((e) => {
         console.log(e);
@@ -80,6 +102,7 @@ bot.on('text', (ctx) => {
 
 bot.command('filters', (ctx) => {});
 
-bot.launch().then(() => {
+bot.launch().then(async () => {
+  await filters.start();
   console.log('Bot started successfully');
 });

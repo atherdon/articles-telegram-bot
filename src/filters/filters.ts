@@ -9,6 +9,11 @@ export class Filters {
     this.path = pth;
   }
 
+  async start(): Promise<void> {
+    const filters: Filter[] = await this.data();
+    this.filters = filters;
+  }
+
   async data(): Promise<Filter[]> {
     return new Promise((resolve, reject) => {
       try {
@@ -47,6 +52,9 @@ export class Filters {
   }
 
   async create(filter: Filter): Promise<void> {
+    if (typeof filter.id === 'undefined') {
+      filter.id = this.filters.length + 1;
+    }
     await this.filters.push(filter);
     await this.save();
   }

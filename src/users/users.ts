@@ -56,16 +56,37 @@ export class Users {
     });
   }
 
+  async update(user: user): Promise<void> {
+    if (typeof user.filters !== 'string') {
+      await user.filters.forEach((el, index) => {
+        if (el == '') {
+          // @ts-ignore
+          user.filters.splice(index, 1);
+        }
+      });
+      user.filters = user.filters.join(',');
+    }
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'UPDATE users SET id=?,uid=?,filters=? WHERE id=?',
+        [...Object.values(user), user.id],
+        () => {
+          resolve();
+        }
+      );
+    });
+  }
+
   async getUser(id: number): Promise<user> {
     return new Promise((resolve, reject) => {
       this.db.all(
-        'SELECT * FROM users WHERE id=?',
+        'SELECT * FROM users WHERE uid=?',
         [id],
-        (err: Error | null, res: dbUser) => {
+        (err: Error | null, res: dbUser[]) => {
           if (err) reject(err);
-          const user: user = res;
-          if (typeof res.filters == 'string') {
-            user.filters = res.filters.split(',');
+          const user: user = res[0];
+          if (typeof user.filters == 'string') {
+            user.filters = user.filters.split(',');
           }
           resolve(user);
         }
