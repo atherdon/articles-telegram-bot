@@ -4,43 +4,46 @@ import { Users } from './users/users';
 import * as path from 'path';
 import { Menu } from './buttons';
 import { CallbackButton } from 'telegraf/typings/markup';
+import { TelegrafContext } from 'telegraf/typings/context'
 import { Filter } from './filters/filter.type';
+import * as _ from 'lodash';
 
 const filters = new Filters(path.join(__dirname, '..', 'db', 'filters.json'));
 const users = new Users(path.join(__dirname, '..', 'db', 'users.sqlite3'));
-const bot = new Telegraf('14400:AAFS3hUzcORGMUxpGqCs');
+const bot = new Telegraf('1444702700:AAFS3hUzWh7ZQDcOP7V3ZuRGMUxpGq5dNCs');
 
 // bot.use(Telegraf.log())
 
-bot.start(async (ctx) => {
+bot.start(async (ctx: TelegrafContext) => {
   const user = ctx.update.message?.from;
   if (typeof user !== 'undefined') {
     await users.create({
       uid: user.id,
       filters: ''
     });
-    //@ts-ignore
     return ctx.reply('Custom buttons keyboard', {
       reply_markup: Menu
     });
   } else {
-    ctx.reply('Мы не смогли определить вас.');
+    await ctx.reply('Мы не смогли определить вас.');
   }
 });
 
-bot.action('filters', async (ctx) => {
+bot.action('filters', async (ctx: TelegrafContext) => {
   const current_filters = await filters.data();
   const btns: Array<CallbackButton[]> = [];
-  let counter = 0;
-  for (let filter of current_filters) {
-    if (counter % 3 == 0) {
-      btns.push([]);
+  _.forEach(current_filters, (filter: Filter) => {
+    if (typeof filter.id !== 'undefined') {
+      const id = filter.id - 1;
+      if (id % 3 == 0) {
+        btns.push([]);
+      }
+      console.log(id);
+      btns[_.floor(id / 3)].push(
+        Markup.callbackButton(filter.name, 'filter-' + filter.id)
+      );
     }
-    btns[Math.floor(counter / 3)].push(
-      Markup.callbackButton(filter.name, 'filter-' + filter.id)
-    );
-    counter++;
-  }
+  })
   const keyboard = Markup.inlineKeyboard(btns);
 
   console.log(keyboard, Menu);
@@ -50,32 +53,16 @@ bot.action('filters', async (ctx) => {
 });
 
 bot.action(/(filter)-([0-9]{1,3})/i, async (ctx) => {
-  // @ts-ignore
-  if (typeof ctx.match !== 'undefined' && ctx.match !== null) {
+  if (typeof ctx.match !== 'undefined' && ctx.match !== null && typeof ctx.update !== 'undefined' && typeof ctx.update.callback_query !== 'undefined') {
     const fid: number = +ctx.match[2];
-    // @ts-ignore
     const id = ctx.update.callback_query.from.id;
     const user = await users.getUser(id);
     filters
       .getFilter(fid)
       .then(async (filter) => {
-        let { filters } = user;
-        if (filters.indexOf(String(fid)) === -1) {
-          if (typeof filters !== 'string') {
-            filters.push(String(fid));
-          } else {
-            filters = filters.split(',');
-            filters.push(String(fid));
-          }
-        } else {
-          if (typeof filters !== 'string') {
-            await filters.splice(filters.indexOf(String(fid)), 1);
-          } else {
-            filters = filters.split(',');
-            await filters.splice(filters.indexOf(String(fid)), 1);
-          }
-        }
-        user.filters = filters;
+        let current_filters = user.filters;
+        current_filters = await filters.correctFilter(current_filters, fid);
+        user.filters = current_filters;
         await users.update(user);
         await ctx.reply('Your filters - ' + JSON.stringify(user.filters));
       })
@@ -87,20 +74,21 @@ bot.action(/(filter)-([0-9]{1,3})/i, async (ctx) => {
   }
 });
 
-bot.command('benchmark', async (ctx) => {
+bot.command('benchmark', async (ctx: TelegrafContext) => {
   const start = +new Date();
   await ctx.reply('Wait...');
   await ctx.reply(`Response time: ${+new Date() - start} ms`);
   console.log('Response time: %s ms', +new Date() - start);
 });
 
-bot.on('text', (ctx) => {
-  // @ts-ignore
-  const msg: string = ctx.update.message.text;
-  ctx.reply(msg);
+bot.on('text', async (ctx: TelegrafContext) => {
+  if (typeof ctx.update !== 'undefined' && typeof ctx.update.message !== 'undefined' && typeof ctx.update.message.text !== 'undefined' ) {
+    const msg: string = ctx.update.message.text;
+    await ctx.reply(msg);
+  }
 });
 
-bot.command('filters', (ctx) => {});
+bot.command('filters', (ctx: TelegrafContext) => {});
 
 bot.launch().then(async () => {
   await filters.start();

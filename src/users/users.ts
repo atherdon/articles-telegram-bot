@@ -1,5 +1,6 @@
 import { user, dbUser, userExists } from './user.type';
 import sqlite3 from 'sqlite3';
+import * as _ from 'lodash';
 
 const sqlite = sqlite3.verbose();
 
@@ -21,7 +22,7 @@ export class Users {
           user.uid,
           typeof user.filters === 'string'
             ? user.filters
-            : user.filters.join(',')
+            : _.join(user.filters, ',')
         ],
         () => {
           resolve();
@@ -36,7 +37,7 @@ export class Users {
         if (err) reject(err);
         const usrs: user[] = res.map((user) => {
           if (typeof user.filters === 'string') {
-            user.filters = user.filters.split(',');
+            user.filters = _.split(user.filters, ',');
           }
           return user;
         });
@@ -46,7 +47,7 @@ export class Users {
   }
 
   async exists(id: number): Promise<any> {
-    const query: string = 'SELECT * FROM users WHERE id=?';
+    const query = 'SELECT * FROM users WHERE id=?';
     return new Promise((resolve, reject) => {
       this.db.all(query, [id], (err: Error | null, res: any) => {
         if (err) reject(err);
@@ -59,12 +60,11 @@ export class Users {
   async update(user: user): Promise<void> {
     if (typeof user.filters !== 'string') {
       await user.filters.forEach((el, index) => {
-        if (el == '') {
-          // @ts-ignore
+        if (el == '' && typeof user.filters !== 'string') {
           user.filters.splice(index, 1);
         }
       });
-      user.filters = user.filters.join(',');
+      user.filters = _.join(user.filters, ',');
     }
     return new Promise((resolve, reject) => {
       this.db.run(
@@ -86,7 +86,7 @@ export class Users {
           if (err) reject(err);
           const user: user = res[0];
           if (typeof user.filters == 'string') {
-            user.filters = user.filters.split(',');
+            user.filters = _.split(user.filters, ',');
           }
           resolve(user);
         }
