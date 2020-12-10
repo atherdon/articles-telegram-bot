@@ -1,12 +1,12 @@
 # articles-telegram-bot
-RSS Telegram bot for articles hackernoon.com
-# Technologies
-- Node.js
-- TypeScript
-- Telegraf
-- Lodash
-- ESLint
-- Prettier
-- Jest/TS-Jest
-- Yarn
-For changed see changelog
+
+current link: http://t.me/hackernoon_articles_bot
+
+default feeds: 
+- https://hackernoon.com/tagged/hackernoon-top-story/feed
+- https://hackernoon.com/tagged/business/feed
+- https://hackernoon.com/tagged/programming/feed
+- https://hackernoon.com/tagged/blockchain/feed
+- https://hackernoon.com/tagged/cryptocurrency/feed
+
+
