@@ -1,9 +1,10 @@
 import { Filter } from './filter.type';
 import * as fs from 'fs/promises';
+import * as _ from 'lodash';
 
 export class Filters {
   private filters: Filter[] = [];
-  private path: string = '';
+  private path = '';
 
   constructor(pth: string) {
     this.path = pth;
@@ -27,7 +28,7 @@ export class Filters {
   }
 
   async getFilter(id: number): Promise<Filter> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.data()
         .then((dat) => {
           resolve(dat[id - 1]);
@@ -39,7 +40,7 @@ export class Filters {
   }
 
   async save(): Promise<boolean> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         const saveData = JSON.stringify(this.filters, null, 2);
         fs.writeFile(this.path, saveData, { encoding: 'utf-8' }).then(() => {
@@ -48,6 +49,27 @@ export class Filters {
       } catch (e) {
         reject(false);
       }
+    });
+  }
+
+  async correctFilter(filter: string | Array<string>, fid: number): Promise<Array<string>> {
+    return new Promise((resolve) => {
+      if (filter.indexOf(String(fid)) === -1) {
+        if (typeof filter !== 'string') {
+          filter.push(String(fid));
+        } else {
+          filter = _.split(filter, ',');
+          filter.push(String(fid));
+        }
+      } else {
+        if (typeof filter !== 'string') {
+          filter.splice(filter.indexOf(String(fid)), 1);
+        } else {
+          filter = _.split(filter, ',');
+          filter.splice(filter.indexOf(String(fid)), 1);
+        }
+      }
+      resolve(filter);
     });
   }
 
