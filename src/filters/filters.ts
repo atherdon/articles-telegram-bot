@@ -52,22 +52,21 @@ export class Filters {
     });
   }
 
-  async correctFilter(filter: string | Array<string>, fid: number): Promise<Array<string>> {
+  async correctFilter(
+    filter: string | Array<string>,
+    fid: number
+  ): Promise<Array<string>> {
     return new Promise((resolve) => {
       if (filter.indexOf(String(fid)) === -1) {
-        if (typeof filter !== 'string') {
-          filter.push(String(fid));
-        } else {
+        if (typeof filter === 'string') {
           filter = _.split(filter, ',');
-          filter.push(String(fid));
         }
+        filter.push(String(fid));
       } else {
-        if (typeof filter !== 'string') {
-          filter.splice(filter.indexOf(String(fid)), 1);
-        } else {
+        if (typeof filter === 'string') {
           filter = _.split(filter, ',');
-          filter.splice(filter.indexOf(String(fid)), 1);
         }
+        filter.splice(filter.indexOf(String(fid)), 1);
       }
       resolve(filter);
     });
