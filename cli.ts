@@ -36,7 +36,7 @@ const options: CLIOptions = {
       pattern: /filter/,
       callback: async (anotherCommands, options) => {
         if (options.command == 'make') {
-          const filterName = anotherCommands[0];
+          const filterName = anotherCommands.join(' ');
           await filters.create({
             name: filterName,
             slug: filters.makeSlug(filterName)
