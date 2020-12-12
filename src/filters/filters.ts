@@ -15,6 +15,10 @@ export class Filters {
     this.filters = filters;
   }
 
+  makeSlug(name: string): string {
+    return name.toLowerCase().split(' ').join('-');
+  }
+
   async data(): Promise<Filter[]> {
     return new Promise((resolve, reject) => {
       try {
@@ -50,6 +54,20 @@ export class Filters {
         reject(false);
       }
     });
+  }
+
+  async delete(id: number): Promise<void> {
+    let current_filters: Filter[] | undefined;
+    // @ts-ignore
+    current_filters = await _.map(_.filter(this.filters, (el: Filter) => el.id !== id), (el: Filter) => {
+      if (typeof el.id !== 'undefined' && el.id > id) {
+        return { ...el, id: el.id - 1 };
+      }
+    });
+    if (typeof current_filters !== 'undefined') {
+      this.filters = current_filters;
+      await this.save();
+    }
   }
 
   async correctFilter(
